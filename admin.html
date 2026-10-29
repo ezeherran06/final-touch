@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Administración · Final Touch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,700;1,800&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{--az:#39B5FF;--bl:#fff;--ca:#24211C;--pl:#858582;--as:#28617F;--sf:#302d28}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--ca);color:var(--bl);font:700 15px/1.5 Montserrat,Arial,sans-serif}
+    header,main{max-width:1000px;margin:auto;padding:18px}
+    header{border-bottom:1px solid var(--pl);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    h1,h2,h3{margin:0 0 12px;text-transform:uppercase}h1{font-size:1.5rem}h2{font-size:1.15rem;color:var(--az)}
+    p,small{color:var(--pl)}small{display:block}
+    button,.btn{border:0;background:var(--az);color:var(--ca);font:inherit;font-weight:800;padding:10px 15px;cursor:pointer;text-decoration:none}
+    button.secondary{background:none;color:var(--az);border:1px solid var(--az)}
+    input,select{width:100%;padding:10px;background:var(--ca);border:1px solid var(--pl);color:var(--bl);font:inherit}
+    input[type=checkbox]{width:auto}
+    label{display:grid;gap:5px;color:var(--pl);font-size:.8rem;text-transform:uppercase}
+    .panel,.card{background:var(--sf);border:1px solid var(--pl);padding:16px;margin:14px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+    nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+    nav button{background:none;color:var(--bl);border:1px solid var(--pl)}
+    nav button.active{background:var(--az);color:var(--ca);border-color:var(--az)}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--as);padding:12px 0}
+    .row:first-child{border-top:0}.actions{display:flex;gap:8px;flex-wrap:wrap}
+    .note{border-left:3px solid var(--az);padding:8px 12px}
+    #message{position:sticky;top:8px;background:var(--az);color:var(--ca);padding:10px;display:none}
+    #app[hidden],#login[hidden]{display:none}
+    @media(max-width:500px){header{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <header><div><h1>Final Touch</h1><small>Panel privado de administración</small></div><div class="actions"><a class="btn" href="./#servicios">Ver página pública</a><button id="logout" class="secondary" hidden>Cerrar sesión</button></div></header>
+  <main>
+    <div id="message" role="status"></div>
+    <section id="login" class="panel">
+      <h2>Ingresar</h2>
+      <p>Escribí tu correo autorizado. Te enviaremos un enlace de acceso; no hace falta crear una contraseña.</p>
+      <form id="login-form" class="grid">
+        <label>Tu correo<input id="email" type="email" autocomplete="email" required></label>
+        <button type="submit">Enviarme el enlace</button>
+      </form>
+    </section>
+    <section id="app" hidden>
+      <nav>
+        <button data-tab="agenda" class="active">Agenda</button>
+        <button data-tab="clientes">Clientes</button>
+        <button data-tab="ajustes">Ajustes</button>
+      </nav>
+      <div id="content"></div>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
