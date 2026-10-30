@@ -309,7 +309,16 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
       notify("Te enviamos un enlace por correo. Abrilo en este dispositivo para entrar al panel.");
     } catch (error) {
       console.error("No se pudo iniciar sesión en Final Touch:", error.message);
-      notify("No se pudo enviar el enlace. Revisá el correo y la configuración de acceso.");
+      const reason = `${error.code || ""} ${error.message || ""}`.toLowerCase();
+      if (reason.includes("not authorized") || reason.includes("not allowed")) {
+        notify("Supabase no permite enviar a este correo con su servicio de prueba. Agregá tu correo como integrante del equipo de tu organización en Supabase o configurá un servicio SMTP.");
+      } else if (reason.includes("rate limit") || reason.includes("too many requests")) {
+        notify("Supabase limitó los correos de prueba. Esperá una hora antes de volver a intentarlo o configurá un servicio SMTP.");
+      } else if (reason.includes("smtp") || reason.includes("email provider")) {
+        notify("Supabase no tiene configurado un servicio de envío de correo. Hace falta configurar SMTP o usar un correo del equipo del proyecto.");
+      } else {
+        notify(`No se pudo enviar el enlace: ${error.message || "revisá la configuración de correo y acceso en Supabase."}`);
+      }
     }
   });
 
