@@ -160,6 +160,7 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
         <label>Dirección<input name="address"></label>
         <label>Marca del vehículo<input name="brand" placeholder="Ej.: Toyota"></label>
         <label>Modelo del vehículo<input name="model" placeholder="Ej.: Corolla"></label>
+        <label>Información adicional (opcional)<input name="info" placeholder="Ej.: solo lavado exterior"></label>
         <label>Servicio<select name="service">${serviceOptions}</select></label>
         <label>Vehículo<select name="vehicle">${vehicleOptions}</select></label>
         <div class="grid">${extraOptions}</div>
@@ -223,6 +224,7 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
       addr: String(values.get("address") || "").trim(),
       brand: String(values.get("brand") || "").trim(),
       model: String(values.get("model") || "").trim(),
+      info: String(values.get("info") || "").trim(),
       svc: String(values.get("service") || "Express"),
       veh: String(values.get("vehicle") || "Auto"),
       x: values.getAll("extra").map(Number)
