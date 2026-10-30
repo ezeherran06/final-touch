@@ -61,6 +61,21 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
     message.style.display = "block";
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const saveErrorMessage = error => {
+    const code = error && error.code ? ` (${error.code})` : "";
+    const reason = `${error && error.code ? error.code : ""} ${error && error.message ? error.message : ""}`.toLowerCase();
+    if (reason.includes("42501") || reason.includes("row-level security")) {
+      return "Supabase rechazó el guardado por permisos. Revisá que el correo de ingreso sea el mismo autorizado en la política SQL de final_touch_private.";
+    }
+    if (reason.includes("401") || reason.includes("jwt") || reason.includes("session")) {
+      return "La sesión del panel venció. Cerrá sesión, volvé a ingresar y probá guardar otra vez.";
+    }
+    if (reason.includes("does not exist") || reason.includes("schema cache") || reason.includes("pgrst205")) {
+      return "Supabase no encuentra la tabla privada. Volvé a ejecutar el SQL de configuración en el proyecto correcto.";
+    }
+    const message = error && error.message ? error.message : "Error desconocido";
+    return `No se pudo guardar${code}: ${message}`;
+  };
   const hideMessage = () => { $("#message").style.display = "none"; };
   const defaultSettings = () => ({
     wa: "2612079115", slots: ["09:00", "11:30", "14:00", "16:30", "18:00"],
@@ -241,8 +256,8 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
     } catch (error) {
       privateData.turns = privateData.turns.filter(item => item.id !== turn.id);
       privateData.clients = oldClients;
-      console.error("No se pudo guardar el turno de Final Touch:", error.message);
-      notify("No se pudo guardar el turno. Revisá la conexión e intentá de nuevo.");
+      console.error("No se pudo guardar el turno de Final Touch:", error);
+      notify(saveErrorMessage(error));
     }
   }
 
