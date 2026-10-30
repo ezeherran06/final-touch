@@ -17,6 +17,43 @@
 
   const esc = value => String(value == null ? "" : value).replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]);
   const money = value => "$" + Number(value || 0).toLocaleString("es-AR");
+  const phoneForWhatsApp = value => {
+    let phone = String(value || "").replace(/\D/g, "").replace(/^0+/, "");
+    if (phone.length === 10) phone = "549" + phone;
+    else if (phone.length === 12 && phone.startsWith("54") && phone[2] !== "9") phone = "549" + phone.slice(2);
+    return phone;
+  };
+  const appointmentDate = value => {
+    const [year, month, day] = String(value || "").split("-").map(Number);
+    if (!year || !month || !day) return value;
+    return new Intl.DateTimeFormat("es-AR", { weekday: "long", day: "numeric", month: "long" }).format(new Date(year, month - 1, day));
+  };
+  const confirmationLink = turn => {
+    const phone = phoneForWhatsApp(turn.phone);
+    if (!phone) return "";
+    const service = turn.svc || turn.service || "lavado";
+    const vehicle = turn.veh || turn.vehicle || "vehículo";
+    const extras = (turn.x || []).map(index => extraNames[index]).filter(Boolean);
+    const message = `🚗💦 ¡Tu turno en FINAL TOUCH está confirmado!
+
+📅 Fecha: ${appointmentDate(turn.date)}
+🕒 Horario: ${turn.time} hs
+🚘 Servicio: ${service} · ${vehicle}${extras.length ? " · " + extras.join(", ") : ""}
+📍 Domicilio: ${turn.addr || turn.address || "a coordinar"}
+
+Para poder realizar el lavado, necesitamos que tengas disponibles:
+🔹 Una canilla con acceso a agua.
+🔹 Un enchufe eléctrico.
+
+⏱️ Duración estimada: entre 2 horas y media y 3 horas, dependiendo del estado general del vehículo.
+
+¡Muchas gracias por elegirnos y confiar en nuestro servicio!
+
+Nos vemos pronto para darle a tu vehículo el cuidado que se merece. ✨
+
+FINAL TOUCH | Lavado Premium a Domicilio 💙`;
+    return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  };
   const notify = text => {
     const message = $("#message");
     message.textContent = text;
@@ -131,7 +168,10 @@
 
   function renderAgenda() {
     const turns = [...privateData.turns].sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
-    const rows = turns.length ? turns.map(turn => `<div class="row"><div><b>${esc(turn.date)} · ${esc(turn.time)}</b><div>${esc(turn.name)} · ${esc(turn.service)} (${esc(turn.vehicle)})</div><small>${esc(turn.phone)}${turn.address ? " · " + esc(turn.address) : ""}</small></div><button class="secondary" data-delete-turn="${esc(turn.id)}">Quitar</button></div>`).join("") : "<p>Todavía no cargaste turnos.</p>";
+    const rows = turns.length ? turns.map(turn => {
+      const confirmUrl = confirmationLink(turn);
+      return `<div class="row"><div><b>${esc(turn.date)} · ${esc(turn.time)}</b><div>${esc(turn.name)} · ${esc(turn.svc || turn.service)} (${esc(turn.veh || turn.vehicle)})</div><small>${esc(turn.phone)}${turn.addr || turn.address ? " · " + esc(turn.addr || turn.address) : ""}</small></div><div class="actions">${confirmUrl ? `<a class="btn" target="_blank" rel="noopener" href="${confirmUrl}">Confirmar por WhatsApp</a>` : "<small>Agregá un teléfono para enviar la confirmación</small>"}<button class="secondary" data-delete-turn="${esc(turn.id)}">Quitar</button></div></div>`;
+    }).join("") : "<p>Todavía no cargaste turnos.</p>";
     return `<h2>Agenda</h2>${appointmentForm()}<section class="panel"><h2>Turnos cargados</h2>${rows}</section>`;
   }
 
