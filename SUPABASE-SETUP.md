@@ -12,11 +12,9 @@ La página de clientes es `https://ezeherran06.github.io/final-touch/`. Tu panel
 
 ## 2. Permitir el enlace de ingreso
 
-En Supabase, abrí **Authentication → URL Configuration**. En **Redirect URLs**, agregá exactamente:
+En Supabase, abrí **Authentication → Users → Add user**. Creá un usuario con el correo autorizado en `supabase-setup.sql`, elegí una contraseña segura y activá **Auto Confirm User** si aparece esa opción. Guardá la contraseña únicamente en un lugar privado; no la compartas por el chat. Después, ingresá en `https://ezeherran06.github.io/final-touch/admin.html` con ese correo y contraseña.
 
-`https://ezeherran06.github.io/final-touch/admin.html`
-
-El inicio de sesión usa un enlace de un solo uso enviado por correo. El proveedor de correo ya está activado en este proyecto.
+El panel usa acceso por contraseña y no necesita enviar correos, SMTP ni que agregues integrantes al equipo de Supabase.
 
 ## Datos y seguridad
 
