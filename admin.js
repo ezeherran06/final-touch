@@ -38,7 +38,8 @@
 
 📅 Fecha: ${appointmentDate(turn.date)}
 🕒 Horario: ${turn.time} hs
-🚘 Servicio: ${service} · ${vehicle}${extras.length ? " · " + extras.join(", ") : ""}
+🚘 Vehículo: ${[turn.brand, turn.model].filter(Boolean).join(" ") || vehicle}
+🧽 Servicio: ${service} · ${vehicle}${extras.length ? " · " + extras.join(", ") : ""}
 📍 Domicilio: ${turn.addr || turn.address || "a coordinar"}
 
 Para poder realizar el lavado, necesitamos que tengas disponibles:
@@ -157,6 +158,8 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
         <label>Nombre del cliente<input name="name" required></label>
         <label>Teléfono<input name="phone" inputmode="tel"></label>
         <label>Dirección<input name="address"></label>
+        <label>Marca del vehículo<input name="brand" placeholder="Ej.: Toyota"></label>
+        <label>Modelo del vehículo<input name="model" placeholder="Ej.: Corolla"></label>
         <label>Servicio<select name="service">${serviceOptions}</select></label>
         <label>Vehículo<select name="vehicle">${vehicleOptions}</select></label>
         <div class="grid">${extraOptions}</div>
@@ -170,7 +173,7 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
     const turns = [...privateData.turns].sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
     const rows = turns.length ? turns.map(turn => {
       const confirmUrl = confirmationLink(turn);
-      return `<div class="row"><div><b>${esc(turn.date)} · ${esc(turn.time)}</b><div>${esc(turn.name)} · ${esc(turn.svc || turn.service)} (${esc(turn.veh || turn.vehicle)})</div><small>${esc(turn.phone)}${turn.addr || turn.address ? " · " + esc(turn.addr || turn.address) : ""}</small></div><div class="actions">${confirmUrl ? `<a class="btn" target="_blank" rel="noopener" href="${confirmUrl}">Confirmar por WhatsApp</a>` : "<small>Agregá un teléfono para enviar la confirmación</small>"}<button class="secondary" data-delete-turn="${esc(turn.id)}">Quitar</button></div></div>`;
+      return `<div class="row"><div><b>${esc(turn.date)} · ${esc(turn.time)}</b><div>${esc(turn.name)} · ${esc(turn.svc || turn.service)} (${esc(turn.veh || turn.vehicle)})</div><small>${[turn.brand, turn.model].filter(Boolean).map(esc).join(" ")}${turn.brand || turn.model ? " · " : ""}${esc(turn.phone)}${turn.addr || turn.address ? " · " + esc(turn.addr || turn.address) : ""}</small></div><div class="actions">${confirmUrl ? `<a class="btn" target="_blank" rel="noopener" href="${confirmUrl}">Confirmar por WhatsApp</a>` : "<small>Agregá un teléfono para enviar la confirmación</small>"}<button class="secondary" data-delete-turn="${esc(turn.id)}">Quitar</button></div></div>`;
     }).join("") : "<p>Todavía no cargaste turnos.</p>";
     return `<h2>Agenda</h2>${appointmentForm()}<section class="panel"><h2>Turnos cargados</h2>${rows}</section>`;
   }
@@ -218,6 +221,8 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
       name,
       phone,
       addr: String(values.get("address") || "").trim(),
+      brand: String(values.get("brand") || "").trim(),
+      model: String(values.get("model") || "").trim(),
       svc: String(values.get("service") || "Express"),
       veh: String(values.get("vehicle") || "Auto"),
       x: values.getAll("extra").map(Number)
