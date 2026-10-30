@@ -301,20 +301,21 @@ FINAL TOUCH | Lavado Premium a Domicilio 💙`;
     if (!db) return notify("Todavía falta conectar Supabase. Revisá la configuración del proyecto.");
     const email = $("#email").value.trim();
     try {
-      const { error } = await db.auth.signInWithPassword({ email, password: $("#password").value });
+      const { error } = await db.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${location.origin}${location.pathname}` }
+      });
       if (error) throw error;
-      await enterAdmin();
+      notify("Te enviamos un enlace por correo. Abrilo en este dispositivo para entrar al panel.");
     } catch (error) {
       console.error("No se pudo iniciar sesión en Final Touch:", error.message);
       const reason = `${error.code || ""} ${error.message || ""}`.toLowerCase();
-      if (reason.includes("invalid login credentials") || reason.includes("invalid_credentials")) {
-        notify("Correo o contraseña incorrectos. Si todavía no creaste el usuario, hacelo en Supabase → Authentication → Users → Add user.");
-      } else if (reason.includes("email not confirmed")) {
-        notify("Supabase todavía no confirmó este usuario. Al crearlo desde Authentication → Users, marcá la opción para confirmar el correo.");
-      } else if (reason.includes("42501") || reason.includes("row-level security")) {
-        notify("El correo ingresado no coincide con el autorizado para administrar el panel.");
+      if (reason.includes("not authorized") || reason.includes("not allowed")) {
+        notify("Supabase no permite enviar a este correo todavía. Confirmá que aceptaste la invitación a la organización con este mismo correo y volvé a intentar.");
+      } else if (reason.includes("rate limit") || reason.includes("too many requests")) {
+        notify("Supabase limitó los correos de prueba. Esperá una hora antes de volver a intentarlo.");
       } else {
-        notify(`No se pudo ingresar: ${error.message || "revisá el usuario y la contraseña."}`);
+        notify(`No se pudo enviar el enlace: ${error.message || "revisá la configuración de correo y acceso en Supabase."}`);
       }
     }
   });
